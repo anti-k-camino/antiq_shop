@@ -1,0 +1,25 @@
+{
+  "name": "antiq_shop",
+  "version": "1.0.0",
+  "description": "A shop on nodejs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anti-k-camino/antiq_shop.git"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "antiq",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anti-k-camino/antiq_shop/issues"
+  },
+  "homepage": "https://github.com/anti-k-camino/antiq_shop#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

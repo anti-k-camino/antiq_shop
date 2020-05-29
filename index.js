@@ -1,4 +1,5 @@
 const express = require('express');
+const connection = require('./db');
 const app = express();
 // const path = require('path');
 
@@ -15,13 +16,16 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/cat', (req, res) => {
-  res.send('cat');
+connection.connect(err => {
+    if (err) return console.error('Error connecting: ' + err.stack);
+    console.log('Connected as threadId ', connection.threadId);
 });
-// app.get("/cat", (req, res) => {
-//   console.log("Running...");
-//   // res.end('The end');
-//   return res.render("index.html");
-// });
+
+connection.query('SELECT * FROM new_table', (error, results, fields) => {
+    if (error) throw error;
+    results.forEach(result => console.log(result));
+});
+
+// connection.end();
 
 app.listen(port, () => console.log(`Listening  on port ${port}...`));

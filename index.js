@@ -9,18 +9,10 @@ app.set('views', 'antiq_shop/views'); // just for dev !!!
 app.set('view engine', 'pug');
 
 app.get('/', (req, res) => {
-  const results = connection.query('SELECT * FROM goods', (error, results) => {
-    if (error) throw error;
-    const goods = {};
-    for(let i = 0; i < results.length; ++i) {
-      goods[results[i]['id']] = results[i];
-    }
-    res.render('main', { results }); // Refactor to Promises
-  });
+  getGoods().then( goods => res.render('main', { goods }) );
 });
 
 app.get('/category', (req, res) => {
-  // console.log(`QUERY ${req.query.id}`)
   const catId = req.query.id;
   if (!catId) // validate req
     return res.status(400).send('Malformed URL. Bad request.');
@@ -28,25 +20,27 @@ app.get('/category', (req, res) => {
     connection
       .query(`SELECT * FROM category WHERE id = ${catId}`, (err, catArr) => {
         if (err) reject(err);
-        const catObj = catArr[0];
-        resolve(catObj);
+        resolve(catArr[0]); // resolves pure object
       });
   });
-  const goods = new Promise((resolve, reject) => {
+  Promise.all([category, getGoods()])
+    .then(val => console.log('Result value ', val));
+  res.render('category', {});
+});
+
+function getGoods () {
+  return new Promise((resolve, reject) => {
     connection
-      .query(`SELECT * FROM goods WHERE category = ${catId}`, (err, goodsArr) => {
+      .query('SELECT * FROM goods', (err, goodsArr) => {
         if (err) reject(err);
         const goodsObj = {};
-        for(let i = 0; i < goodsArr.length; ++i) {
+        for(let i = 0; i < goodsArr.length; ++i){
           goodsObj[goodsArr[i]['id']] = goodsArr[i];
         }
         resolve(goodsObj);
       });
   });
-  Promise.all([category, goods])
-    .then(val => console.log('Result value ', val));
-  res.render('category', {});
-});
+};
 
 // connection.connect(err => {
 //     if (err) return console.error('Error connecting: ' + err.stack);

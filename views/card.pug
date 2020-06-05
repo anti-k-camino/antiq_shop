@@ -1,0 +1,14 @@
+div(class='col col-md-4')
+  .card
+    a(href='#')
+      h3(class='card-title text-center')=good['name']
+      img(
+        src='images/'+good['image']
+        class='card-images'
+      )
+      p(class='text-center')=good['cost']
+    ul(class='card-actions')
+      li:button(
+        data-goods-id = good['id']
+        class='button button-primary add-to-cart'  
+      ) To Cart

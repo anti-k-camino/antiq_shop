@@ -31,3 +31,19 @@
   margin 0 auto;
   padding 0;
 }
+
+.text-center {
+  text-align: center;
+}
+
+/* --------------------- card ----------------- */
+.card {
+  border: 1px solid #dedede
+}
+
+.card-images {
+  display: block;
+  margin: 20px auto;
+  max-width: 90%;
+  max-height: 150px;
+}

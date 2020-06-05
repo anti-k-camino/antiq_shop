@@ -23,15 +23,26 @@ app.get('/category', (req, res) => {
         resolve(catArr[0]); // resolves pure object
       });
   });
-  Promise.all([category, getGoods()])
-    .then(val => console.log('Result value ', val));
-  res.render('category', {});
+  Promise.all([category, getGoods(catId)])
+    .then(val => {
+      console.log(val[1]);
+      return res.render('category', {
+        category: val[0],
+        goods: val[1]
+      });
+    });
 });
 
-function getGoods () {
+function getGoods (key=0) {
+  let queryString =  '';
+  if (key === 0) {
+    queryString = 'SELECT * FROM goods'
+  } else {
+    queryString = `SELECT * FROM goods WHERE category = ${key}`
+  }
   return new Promise((resolve, reject) => {
     connection
-      .query('SELECT * FROM goods', (err, goodsArr) => {
+      .query(queryString, (err, goodsArr) => {
         if (err) reject(err);
         const goodsObj = {};
         for(let i = 0; i < goodsArr.length; ++i){

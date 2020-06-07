@@ -36,6 +36,24 @@ app.get('/category', (req, res) => {
     });
 });
 
+app.post('/get-category-list', (req, res) => {
+  getCategoryList()
+    .then(categories => res.json(categories));
+});
+
+function getCategoryList () {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT id, category FROM category', (err, catsArr) => {
+      if (err) reject(err);
+      const catsObj = {};
+      for(let i = 0; i < catsArr.length; ++i){
+        catsObj[catsArr[i]['id']] = catsArr[i];
+      };
+      resolve(catsObj);
+    });
+  });
+}
+
 function getGoods () {
   return new Promise((resolve, reject) => {
     connection

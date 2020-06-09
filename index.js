@@ -4,6 +4,7 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
+app.use(express.json());
 app.use(express.static('antiq_shop/public')); // just for dev purposes !
 app.set('views', 'antiq_shop/views'); // just for dev !!!
 app.set('view engine', 'pug');
@@ -41,29 +42,52 @@ app.post('/get-category-list', (req, res) => {
     .then(categories => res.json(categories));
 });
 
+app.post('/get-goods-info', (req, res) => {
+  fetchGoodsInfo(req.body)
+    .then(resObj => {
+      res.json(resObj);
+    });
+});
+
+function fetchGoodsInfo (data) {
+  return new Promise((resolve, reject) => {
+    if (!data.key.length)
+      return resolve({ message: '0' }); // check that out with care !
+    connection
+      .query(`SELECT id,name,cost FROM goods WHERE id IN (${data.key.join(', ')})`, (err, goodsArr) => {
+        if (err) return reject(err);
+        const goodsObj = {};
+        for(let i = 0; i < goodsArr.length; ++i){
+          goodsObj[goodsArr[i]['id']] = goodsArr[i];
+        };
+        return resolve(goodsObj);
+    });
+  });
+};
+
 function getCategoryList () {
   return new Promise((resolve, reject) => {
     connection.query('SELECT id, category FROM category', (err, catsArr) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       const catsObj = {};
       for(let i = 0; i < catsArr.length; ++i){
         catsObj[catsArr[i]['id']] = catsArr[i];
       };
-      resolve(catsObj);
+      return resolve(catsObj);
     });
   });
-}
+};
 
 function getGoods () {
   return new Promise((resolve, reject) => {
     connection
       .query('SELECT * FROM goods', (err, goodsArr) => {
-        if (err) reject(err);
+        if (err) return reject(err);
         const goodsObj = {};
         for(let i = 0; i < goodsArr.length; ++i){
           goodsObj[goodsArr[i]['id']] = goodsArr[i];
         }
-        resolve(goodsObj);
+        return resolve(goodsObj);
       });
   });
 };
@@ -72,12 +96,12 @@ function getGoodsByCat (catId) {
   return new Promise((resolve, reject) => {
     connection
       .query(`SELECT * FROM goods WHERE category = ${catId}`, (err, goodsArr) => {
-        if (err) reject(err);
+        if (err) return reject(err);
         const goodsObj = {};
         for(let i = 0; i < goodsArr.length; ++i){
           goodsObj[goodsArr[i]['id']] = goodsArr[i];
         }
-        resolve(goodsObj);
+        return resolve(goodsObj);
       });
   });
 };
@@ -86,9 +110,8 @@ function getCategory (catId) {
   return new Promise((resolve, reject) => {
     connection
       .query(`SELECT * FROM category WHERE id = ${catId}`, (err, catArr) => {
-        if (err) reject(err);
-        // if (!catArr[0]) reject({ message: 'Not Found' , status: 404 }); !! Provide this validation !!
-        resolve(catArr[0]); // resolves pure object
+        if (err) return reject(err);
+        return resolve(catArr[0]); // resolves pure object
       });
   });
 };
@@ -97,8 +120,8 @@ function getGood (goodId) {
   return new Promise((resolve, reject) => {
     connection
       .query(`SELECT * FROM goods WHERE id = ${goodId}`, (err, goodArr) => {
-        if (err) reject(err);
-        resolve(goodArr[0]);
+        if (err) return reject(err);
+        return resolve(goodArr[0]);
       });
   });
 };

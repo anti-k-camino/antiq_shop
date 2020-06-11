@@ -10,8 +10,15 @@ app.set('views', 'antiq_shop/views'); // just for dev !!!
 app.set('view engine', 'pug');
 
 app.get('/', (req, res) => {
-  getGoods()
-    .then( goods => res.render('main', { goods }) );
+  // getGoods()
+  //   .then( goods => res.render('main', { goods }) );
+  Promise.all([getGoodsMain(), getAllCategories()])
+    .then(value => {
+      return res.render('index', {
+        goods: value[0],
+        categories: value[1]
+      });
+    });
 });
 
 app.get('/goods', (req, res) => {
@@ -22,6 +29,10 @@ app.get('/goods', (req, res) => {
     .then(good => {
       return res.render('good', { good });
     });
+});
+
+app.get('/order', (req, res) => {
+  res.render('order');
 });
 
 app.get('/category', (req, res) => {
@@ -48,6 +59,45 @@ app.post('/get-goods-info', (req, res) => {
       res.json(resObj);
     });
 });
+
+app.post('/finish-order', (req, res) => {
+  const { key } = req.body;
+  if (key.length == 0)
+    return res.status(500).send('0');
+  getOrderedGoods(Object.keys(key))
+    .then(goodsArr => res.send('1'));
+});
+
+function getOrderedGoods (keys) {
+  return new Promise((resolve, reject) => {
+    connection
+      .query(`SELECT id,name,cost,image,category  FROM goods WHERE id IN(${keys})`, (err, goodsArr) => {
+        if (err) return reject(err);
+        return resolve(goodsArr);
+      });
+  });
+};
+
+function getGoodsMain () {
+  const queryString = 'SELECT id,name,cost,image,category FROM goods ORDER BY cost DESC LIMIT 6';
+    return new Promise ((resolve, reject) => {
+    connection
+      .query(queryString, (error, goodsArr, fields) => {
+        if (error) return reject(error);
+        return resolve(goodsArr);
+      });
+  });
+};
+
+function getAllCategories () {
+  return new Promise ((resolve, reject) => {
+    connection
+      .query('SELECT * FROM category', (err, catsArr, fields) => {
+        if (err) return reject(err);
+        resolve(catsArr);
+      });
+  });
+};
 
 function fetchGoodsInfo (data) {
   return new Promise((resolve, reject) => {

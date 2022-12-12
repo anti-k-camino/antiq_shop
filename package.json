@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/anti-k-camino/antiq_shop#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "mustard-ui": "^1.0.4",
     "mysql": "^2.18.1",
     "pug": "^2.0.4"
